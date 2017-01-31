@@ -2,14 +2,17 @@ $.extend({
 	spellnote: new function(){
 		this.constant = function(){
 			return {
-				emptyPara : '<p><br></p>',
-				topLevelTagNameList : ['P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'BLOCKQUOTE'],
-				editorClassName : 'sn-editor',
+				emptyPara : '<p><br></p>', // 空段落
+				topLevelTagNameList : ['P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'BLOCKQUOTE'], // 顶级标签名列表
+				editorClassName : 'sn-editor', // 编辑器class
 			};
 		}();
 		
 		this.tools = function(){
 			var indexOf = function(list, ele){
+				/**
+				 * 返回元素在数组中的位置，若没有，则返回-1
+				 */
 				var i = 0, len = list.length;
 				for(; i < len; i++){
 					if(list[i] === ele)
@@ -190,17 +193,23 @@ $.extend({
 			};
 			
 			var formatEditorHtml = function($node){
+				// 格式化文本，消除div等不规范格式
 				var $editor;
 				if($node.hasClass('sn-editor'))
 					$editor = $node;
 				else
-					$editor = this.$getEditor($node);
+					$editor = this.$getEditor($node);	
 				var childNodes = $editor[0].childNodes;
 				for(var i = 0; i < childNodes.length; i++){
 					var node = childNodes[i];
 					var $node = $(node);
 					if(node.tagName == 'BR'){
 						$node.remove();
+						--i;
+						continue;
+					}
+					if(node.tagName == 'DIV'){
+						$node.replaceWith('<p>' + $node.html() + '</p>')
 						continue;
 					}
 					if(!node.tagName || $.spellnote.tools.indexOf($.spellnote.constant.topLevelTagNameList, node.tagName) < 0)
@@ -420,16 +429,18 @@ $.extend({
 				$.spellnote.updateUnitsStatus($node);
 			}).on('keyup', function(e){
 				e.stopPropagation();
-				if((e.keyCode == 37 || e.keyCode == 39) || e.shiftKey)
+				if(e.keyCode == 13)
+					// 回车抬起事件，格式化文本
+					$.spellnote.funcs.formatEditorHtml($editor);
+				if((e.keyCode >= 37 && e.keyCode <= 40) || e.shiftKey)
 					$.spellnote.updateUnitsStatus($node);
 			}).on('keydown', function(e){
 				e.stopPropagation();
-				if(e.keyCode == 13){					
-					$.spellnote.funcs.formatEditorHtml($editor);
+				if(e.keyCode == 13){
 					var range = $.spellnote.funcs.createRange();
 					var topLevelNode = $.spellnote.funcs.getTopLevelNodeByRange(range);
-					console.log(topLevelNode);
 					if($.spellnote.funcs.isCursorAtLast(topLevelNode)){
+						// 如果是在文本末尾回车，则阻止默认行为，并插入空段落
 						e.preventDefault();
 						$.spellnote.funcs.executeCommand('insertHtml', $.spellnote.constant.emptyPara);
 						//$.spellnote.funcs.setCursor($editor, -1);			
