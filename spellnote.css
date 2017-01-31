@@ -1,0 +1,103 @@
+.sn-unit-panel{
+    width: 100%;
+    border-radius: 5px 5px 0px 0px;
+    border: 1px solid #CCCCCC;
+    border-bottom: none;
+}
+
+.sn-editor-panel{
+    width: 100%;
+    min-height: 300px;
+    border-radius: 0px 0px 5px 5px;
+    border: 1px solid #CCCCCC;
+    outline: none;
+    position: relative;
+}
+
+.sn-editor-panel .sn-editor,
+.sn-editor-panel .sn-code-editor{
+    position: absolute;
+    padding: 10px;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    margin: 0px;
+    outline: none;
+    box-sizing:border-box;
+    -moz-box-sizing:border-box; /* Firefox */
+    -webkit-box-sizing:border-box; /* Safari */
+    word-wrap: break-word;
+    overflow: auto;
+}
+
+.sn-editor-panel .sn-editor p{
+    margin: 0 0 10px;
+}
+
+.sn-editor-panel .sn-code-editor{
+    background-color: #333333;
+    color: #FFFFFF;
+    white-space: pre-wrap;
+}
+
+.sn-unit-panel .sn-unit{
+    margin: 5px;
+    padding: 5px;
+    outline: none;
+    border-radius: 5px;
+    background-color: #FFFFFF;
+    border: 1px solid #CCCCCC;
+    transition: background-color 0.3s, border-color 0.1s;
+}
+
+.sn-unit-panel .sn-unit:hover{
+    cursor: pointer;
+}
+
+.sn-unit-panel .sn-unit:active{
+    border-color: #333333;
+}
+
+.sn-unit-panel .sn-unit-status-active{
+    background-color: #E6E6E6;
+}
+
+
+.sn-unit-panel .sn-units-group{
+    display: inline-block;
+    margin: 5px;
+}
+
+.sn-unit-panel .sn-units-group .sn-unit{
+    margin: 0px;
+}
+
+.sn-unit-panel .sn-units-group .sn-unit:first-child{
+    border-radius: 5px 0px 0px 5px;
+    border-left: 1px solid #CCCCCC;
+    border-right: none;
+}
+
+.sn-unit-panel .sn-units-group .sn-unit:nth-child(n+2){
+    border-radius: 0px;
+    border-left: none;
+    border-right: none;
+}
+
+.sn-unit-panel .sn-units-group .sn-unit:last-child{
+    border-radius: 0px 5px 5px 0px;
+    border-right: 1px solid #CCCCCC;
+}
+
+.sn-unit-panel .sn-units-group .sn-unit:active{
+    border-color: #333333;
+}
+
+.sn-unit-panel select{
+    appearance: none;
+}
+
+.sn-unit-panel select option{
+    border-radius: 5px;
+}

@@ -1,0 +1,22 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<link type="text/css" rel="stylesheet" href="spellnote.css" />
+	</head>
+	<body>
+		<div>12323</div>
+		<div class="spellnote1" style="width: 600px;"></div>
+		<div class="spellnote2" style="width: 600px;"></div>
+		<script src="./jquery-3.0.0.js"></script>
+		<script src="./spellnote.js"></script>
+		<script>
+			$('.spellnote1').spellnote('init', {
+				units : [['undo', 'redo'], ['bold', 'italic', 'underline', 'strikeThrough'], 'fontSize', 'code', 'test'],
+			});
+			// $('.spellnote2').spellnote('init', {
+				// units : [['undo', 'redo'], ['bold', 'italic', 'underline', 'strikeThrough'], 'fontSize', 'code', 'test'],
+			// });
+		</script>
+	</body>
+</html>
