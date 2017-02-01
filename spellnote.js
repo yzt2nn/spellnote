@@ -432,20 +432,20 @@ $.extend({
 				if(e.keyCode == 13)
 					// 回车抬起事件，格式化文本
 					$.spellnote.funcs.formatEditorHtml($editor);
-				if((e.keyCode >= 37 && e.keyCode <= 40) || e.shiftKey)
+				if((e.keyCode >= 37 && e.keyCode <= 40) || e.keyCode == 13 || e.keyCode == 8 || e.shiftKey)
 					$.spellnote.updateUnitsStatus($node);
 			}).on('keydown', function(e){
 				e.stopPropagation();
-				if(e.keyCode == 13){
-					var range = $.spellnote.funcs.createRange();
-					var topLevelNode = $.spellnote.funcs.getTopLevelNodeByRange(range);
-					if($.spellnote.funcs.isCursorAtLast(topLevelNode)){
-						// 如果是在文本末尾回车，则阻止默认行为，并插入空段落
-						e.preventDefault();
-						$.spellnote.funcs.executeCommand('insertHtml', $.spellnote.constant.emptyPara);
-						//$.spellnote.funcs.setCursor($editor, -1);			
-					}				
-				}
+				// if(e.keyCode == 13){
+				// 	var range = $.spellnote.funcs.createRange();
+				// 	var topLevelNode = $.spellnote.funcs.getTopLevelNodeByRange(range);
+				// 	if($.spellnote.funcs.isCursorAtLast(topLevelNode)){
+				// 		// 如果是在文本末尾回车，则阻止默认行为，并插入空段落
+				// 		e.preventDefault();
+				// 		$.spellnote.funcs.executeCommand('insertHtml', $.spellnote.constant.emptyPara);
+				// 		//$.spellnote.funcs.setCursor($editor, -1);			
+				// 	}				
+				// }
 			}).on('blur', function(e){
 				//e.stopPropagation();
 				//$.spellnote.funcs.formatEditorHtml($editor);
