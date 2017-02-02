@@ -80,8 +80,14 @@ $.extend({
 			};
 
 			var createRange = function (isNew) {
-				if (isNew)
-					return new Range();
+				if (isNew){
+					try{
+						return new Range();
+					}
+					catch(ex){
+						return selection.createRange();
+					}
+				}
 				var selection = this.createSelection();
 				if (!selection)
 					return null;
@@ -255,24 +261,20 @@ $.extend({
 
 			var saveRangeToBuffer = function () {
 				var range = this.createRange();
-				this.rangeBuffer = range;
+				$.spellnote.rangeBuffer = range;
 			};
 
 			var setRange = function (range) {
 				// 设置range 若无参数默认从rangeBuffer中取
 				var selection = this.createSelection();
 				selection.removeAllRanges();
-				if (!range && this.rangeBuffer)
-					range = this.rangeBuffer
+				if (!range && $.spellnote.rangeBuffer)
+					range = $.spellnote.rangeBuffer
 				if (range)
 					selection.addRange(range);
 			};
 
-			var insertHtml = function ($node, html) {
-				// 如果range是所属于指定编辑器的，则直接插入，若range与指定编辑器不一致，则在指定编辑器末尾插入
-
-				var $editor = this.$getEditor($node);
-				var range = this.createRange();
+			var isRangeBelongTo = function ($node, range) {
 				var isChild = false;
 				if (range) {
 					// 分析range的宿主
@@ -288,10 +290,33 @@ $.extend({
 						isChild = true;
 
 				}
+				return isChild;
+			};
+
+			var getRangeBelongTo = function ($node) {
+				// 如果range是所属于指定编辑器的，则直接返回，若range与指定编辑器不一致，则返回指定编辑器的末尾range
+				var $editor = this.$getEditor($node);
+				var range = this.createRange();
+				var isChild = this.isRangeBelongTo($node, range);
+				if (!isChild) {
+					range = $.spellnote.rangeBuffer;
+					isChild = this.isRangeBelongTo($node, range)
+				}
 				if (!isChild)
 					range = this.getRangeOfCursorAtLast($node.find('.' + $.spellnote.constant.editorClassName)[0]);
+				return range;
+			};
+
+			var insertHtml = function ($node, html) {
+				var range = this.getRangeBelongTo($node);
 				this.setRange(range);
 				$.spellnote.funcs.executeCommand('insertHtml', html);
+			};
+
+			var insertNode = function ($node, newNode) {
+				var range = this.getRangeBelongTo($node);
+				this.setRange(range);
+				range.insertNode(newNode);
 			};
 
 			var formatEditorHtml = function ($node) {
@@ -334,6 +359,50 @@ $.extend({
 				return false;
 			};
 
+			var showModal = function ($node, obj) {
+				// 显示前先存储range
+				this.saveRangeToBuffer();
+
+				var title = obj['title'] || 'Modal';
+				var contentHtml = obj['contentHtml'] || 'There is nothing.';
+				var buttonText = obj['buttonText'] || 'OK'
+				var callback = obj['callback'] || function () { };
+				var autoClose = obj['autoClose'] === undefined ? false : obj['autoClose'];
+
+				var $modal = $node.find('.sn-modal');
+				if ($modal.length > 0) {
+					$modal.find('.sn-modal-button-bar').off();
+					$modal.find('.sn-modal-close-button').off();
+					$modal.slideUp(50);
+					$modal.remove();
+				}
+
+				$modal = $('<div class="sn-modal"></div>');
+				var $title = $('<div class="sn-modal-title">' + title + '</div>');
+				var $content = $('<div class="sn-modal-content">' + contentHtml + '</div>');
+				var $buttonBar = $('<div class="sn-modal-button-bar">' + buttonText + '</div>');
+				var $closeButton = $('<div class="sn-modal-close-button">返回</div>');
+				$closeButton.on('click', function () {
+					$modal.slideUp(50, function () {
+						$node.find('.sn-editor-panel').slideDown(100);
+					});
+					$(this).off();
+					$buttonBar.off();
+					$modal.remove();
+				});
+				$buttonBar.on('click', function () {
+					callback($modal, function () { $closeButton.click() });
+				});
+				$modal.append($title).append($content).append($buttonBar).append($closeButton);
+				$modal.insertAfter($node.find('.sn-unit-panel'));
+
+
+				$node.find('.sn-editor-panel').slideUp(50, function () {
+					$modal.slideDown(100);
+				});
+
+			};
+
 			return {
 				$getUnits: $getUnits,
 				$getUnit: $getUnit,
@@ -351,12 +420,16 @@ $.extend({
 				isRangeEqual: isRangeEqual,
 				setRange: setRange,
 				saveRangeToBuffer: saveRangeToBuffer,
+				insertNode: insertNode,
 				insertHtml: insertHtml,
 				seekNodes: seekNodes,
 				cleanNodes: cleanNodes,
 				isCursorAtLast: isCursorAtLast,
 				getRangeOfCursorAtLast: getRangeOfCursorAtLast,
 				styleWithCSS: styleWithCSS,
+				showModal: showModal,
+				isRangeBelongTo: isRangeBelongTo,
+				getRangeBelongTo: getRangeBelongTo,
 			};
 		} ();
 
@@ -386,7 +459,7 @@ $.extend({
 					$item.html(unit.list[i + 1]);
 					$list.append($item);
 					$item.on('click', function () {
-						$.spellnote.funcs.setRange();
+						$.spellnote.funcs.setRange($.spellnote.rangeBuffer);
 						self.units[name].listClick($node, $(this).data('value'));
 					});
 				}
@@ -484,8 +557,8 @@ $.extend({
 			});
 		};
 
-		this.insertHtml = function ($node, args) {
-			$.spellnote.funcs.insertHtml($node, args[1]);
+		this.insertNode = function ($node, args) {
+			$.spellnote.funcs.insertNode($node, args[1]);
 		};
 
 		this.editorInit = function ($node) {
@@ -718,13 +791,60 @@ $.extend($.spellnote.units, function () {
 		},
 	};
 
+	var video = {
+		title: '视频',
+		click: function ($node, e) {
+			$.spellnote.funcs.showModal($node, {
+				title: '插入视频',
+				contentHtml: '<div><p>视频链接:<p><input class="sn-input sn-video-input" type="text" /></div><p>请输入视频的网址，目前仅支持bilibili视频。</p>',
+				buttonText: '确认',
+				callback: function ($modal) {
+					alert($modal.find('.sn-video-input').val())
+				},
+			});
+		},
+	};
+
+	var music = {
+		title: '音乐',
+		click: function ($node, e) {
+			$.spellnote.funcs.showModal($node, {
+				title: '插入音乐',
+				contentHtml: '<div><p>音乐链接:<p><input class="sn-input sn-music-input" type="text" /></div><p>请输入音乐的网址，目前仅支持网易云音乐。</p>',
+				buttonText: '确认',
+				callback: function ($modal, close) {
+					var url = $modal.find('.sn-music-input').val();
+					var neteaseRegExp = /music.163.com\/#\/song\?id=(\d+)/;
+					var neteaseMatch = url.match(neteaseRegExp);
+
+					var $music;
+
+
+					if (neteaseMatch) {
+						$music = $('<iframe>')
+							.attr('src', 'http://music.163.com/outchain/player?type=2&id=' + neteaseMatch[1] + '&auto=0&height=66')
+							.attr({ 'height': 86, 'width': 330, 'frameborder': 'no' });
+					}
+					else {
+						alert('链接不正确！');
+					}
+					if ($music) {
+						$music.addClass('sn-m');
+						$.spellnote.funcs.insertNode($node, $music[0]);
+						close();
+					}
+				},
+			});
+		},
+	};
+
 	var test = {
 		title: '分割range',
 		click: function ($node, e) {
 			var range = $.spellnote.funcs.createRange();
 			var nodes = $.spellnote.funcs.splitRangeToNodes(range);
 			for (var i in nodes)
-				console.log(nodes[i]);
+				console.log($nodes[i]);
 		},
 	};
 
@@ -741,6 +861,8 @@ $.extend($.spellnote.units, function () {
 		foreColor: foreColor,
 		backColor: backColor,
 		removeFormat: removeFormat,
+		video: video,
+		music: music,
 	};
 } ());
 

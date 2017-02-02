@@ -1,3 +1,7 @@
+.sn-modal{
+    font-family: 'Microsoft Yahei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
 .sn-unit-panel{
     width: 100%;
     border-radius: 5px 5px 0px 0px;
@@ -7,7 +11,6 @@
 
 .sn-editor-panel{
     width: 100%;
-    min-height: 300px;
     border-radius: 0px 0px 5px 5px;
     border: 1px solid #CCCCCC;
     outline: none;
@@ -16,7 +19,7 @@
 
 .sn-editor-panel .sn-editor,
 .sn-editor-panel .sn-code-editor{
-    padding: 10px;
+    padding: 15px 10px 10px 10px;
     width: 100%;
     min-height: 300px;
     margin: 0px;
@@ -50,8 +53,10 @@
 
 .sn-unit-panel .sn-unit{
     position: relative;
+    display: inline-block;
+    height: 30px;
+    font-size: 14px;
     margin: 5px;
-    padding: 5px;
     outline: none;
     border-radius: 5px;
     background-color: #FFFFFF;
@@ -132,11 +137,73 @@
 .sn-unit-foreColor-preview{
     display: block;
     width: 40px;
-    height: 10px;
+    height: 12px;
     transition: width 0.3s;
     border-radius: 5px;
 }
 
 .sn-unit-foreColor-preview:hover{
     width: 50px;
+}
+
+.sn-modal{
+    display: none;
+    position: relative;
+    padding-top: 10px;
+    width: 100% ;
+    border: 1px solid #CCCCCC;
+    border-top: none;
+    border-radius: 0px 0px 5px 5px;
+    font-size: 12px;
+}
+
+.sn-modal .sn-modal-close-button{
+    position: absolute;
+    top: 17px;
+    right: 10px;
+    text-align: center;
+    padding: 2px;
+    height: 16px;
+    line-height: 16px;
+    border-radius: 5px;
+    border: 1px solid #CCCCCC;
+    font-size: 12px;
+    transition: all 0.3s;
+    cursor: pointer;
+}
+
+.sn-modal .sn-modal-button-bar:hover,
+.sn-modal .sn-modal-close-button:hover{
+    background-color: #E6E6E6;
+}
+
+.sn-modal .sn-modal-title{
+    height: 25px;
+    background-color: #F5F5F5;
+    font-size: 16px;
+    padding-left: 5px;
+    padding: 5px;
+}
+
+.sn-modal .sn-modal-content{
+    padding: 20px 5px;
+}
+
+.sn-modal .sn-modal-button-bar{
+    background-color: #F5F5F5;
+    padding: 5px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    height: 30px;
+    line-height: 30px;
+}
+
+.sn-modal .sn-input{
+    border-radius: 5px;
+    padding: 2px;
+    min-width: 100px;
+    width: 80%;
+    height: 20px;
+    outline: none;
 }
