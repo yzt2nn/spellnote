@@ -67,6 +67,7 @@
     border-color: #333333;
 }
 
+.sn-unit-panel .sn-unit-list-active,
 .sn-unit-panel .sn-unit-status-active{
     background-color: #E6E6E6;
 }
@@ -126,4 +127,16 @@
 
 .sn-unit-expanding-list-item:hover{
     background-color: #E6E6E6;
+}
+
+.sn-unit-foreColor-preview{
+    display: block;
+    width: 40px;
+    height: 10px;
+    transition: width 0.3s;
+    border-radius: 5px;
+}
+
+.sn-unit-foreColor-preview:hover{
+    width: 50px;
 }

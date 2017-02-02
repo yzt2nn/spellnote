@@ -5,6 +5,23 @@ $.extend({
 				emptyPara: '<p><br></p>', // 空段落
 				topLevelTagNameList: ['P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'BLOCKQUOTE'], // 顶级标签名列表
 				editorClassName: 'sn-editor', // 编辑器class
+				colorUnitList: ['#000000', '<span class="sn-unit-foreColor-preview" style="background-color: #000000;"></span>',
+					'#FFFFFF', '<span class="sn-unit-foreColor-preview" style="background-color: #FFFFFF;"></span>',
+					'#FF0000', '<span class="sn-unit-foreColor-preview" style="background-color: #FF0000;"></span>',
+					'#FF9C00', '<span class="sn-unit-foreColor-preview" style="background-color: #FF9C00;"></span>',
+					'#FFFF00', '<span class="sn-unit-foreColor-preview" style="background-color: #FFFF00;"></span>',
+					'#00FF00', '<span class="sn-unit-foreColor-preview" style="background-color: #00FF00;"></span>',
+					'#00FFFF', '<span class="sn-unit-foreColor-preview" style="background-color: #00FFFF;"></span>',
+					'#0000FF', '<span class="sn-unit-foreColor-preview" style="background-color: #0000FF;"></span>',
+					'#9C00FF', '<span class="sn-unit-foreColor-preview" style="background-color: #9C00FF;"></span>',
+					'#CE0000', '<span class="sn-unit-foreColor-preview" style="background-color: #CE0000;"></span>',
+					'#E79439', '<span class="sn-unit-foreColor-preview" style="background-color: #E79439;"></span>',
+					'#EFC631', '<span class="sn-unit-foreColor-preview" style="background-color: #EFC631;"></span>',
+					'#6BA54A', '<span class="sn-unit-foreColor-preview" style="background-color: #6BA54A;"></span>',
+					'#4A7B8C', '<span class="sn-unit-foreColor-preview" style="background-color: #4A7B8C;"></span>',
+					'#3984C6', '<span class="sn-unit-foreColor-preview" style="background-color: #3984C6;"></span>',
+					'#634AA5', '<span class="sn-unit-foreColor-preview" style="background-color: #634AA5;"></span>',
+					'#E79C9C', '<span class="sn-unit-foreColor-preview" style="background-color: #E79C9C;"></span>',]
 			};
 		} ();
 
@@ -99,6 +116,13 @@ $.extend({
 				}
 				catch (e) { };
 			};
+
+			var styleWithCSS = function ($node, callback) {
+				// ***!!! 暂时废弃 !!!***
+				document.execCommand("styleWithCSS", false, true);
+				callback($node);
+				document.execCommand("styleWithCSS", false, false);
+			}
 
 			/**
 			 * 移除指定单元的所有状态类class，并添加指定状态类class，参数可以是($node, status, unitName)，也可以是($unit, status)
@@ -331,7 +355,8 @@ $.extend({
 				seekNodes: seekNodes,
 				cleanNodes: cleanNodes,
 				isCursorAtLast: isCursorAtLast,
-				getRangeOfCursorAtLast, getRangeOfCursorAtLast,
+				getRangeOfCursorAtLast: getRangeOfCursorAtLast,
+				styleWithCSS: styleWithCSS,
 			};
 		} ();
 
@@ -380,6 +405,7 @@ $.extend({
 
 						// 先隐藏已经显示的非该项列表
 						$('.sn-unit-expanding-list:not(.sn-unit-expanding-list-' + name + ')').hide();
+						$('.sn-unit-list-active').removeClass('sn-unit-list-active');
 
 						var $list = $('.sn-unit-expanding-list-' + name);
 						if ($list.is(':hidden')) {
@@ -390,6 +416,7 @@ $.extend({
 								left: thisOffset.left,
 								top: thisOffset.top + $this.outerHeight() + 2,
 							});
+							$unit.addClass('sn-unit-list-active');
 							$list.addClass('show');
 							$list.slideDown(200);
 							var listOffset = $list.offset();
@@ -401,6 +428,7 @@ $.extend({
 						}
 						else {
 							$list.slideUp(200);
+							$unit.removeClass('sn-unit-list-active');
 							$list.removeClass('show');
 						}
 					});
@@ -431,9 +459,10 @@ $.extend({
 			// 绑定按钮列表适时消失事件（滚动或点击空白处）
 			$(document).on('scroll click', function (e) {
 				var $target = $(e.target);
-				if (!$target.hasClass('sn-unit-expanding-list') && !$target.hasClass('sn-list-unit')) {
+				if (!$target.hasClass('sn-unit-list-active')) {
 					// 移除所有显示的按钮扩展列表
 					$('.sn-unit-expanding-list.show').slideUp(200);
+					$('.sn-unit-list-active').removeClass('sn-unit-list-active');
 				}
 			});
 		};
@@ -635,6 +664,14 @@ $.extend($.spellnote.units, function () {
 		},
 	};
 
+	var removeFormat = {
+		title: '清除样式',
+		click: function ($node) {
+			$.spellnote.funcs.executeCommand('removeFormat');
+			$.spellnote.updateUnitsStatus($node);
+		},
+	};
+
 	var undo = {
 		title: '撤销',
 		click: function ($node) {
@@ -653,16 +690,31 @@ $.extend($.spellnote.units, function () {
 
 	var fontSize = {
 		title: '字体大小',
-		list: [1, '<font size="1">size</font>',
-			2, '<font size="2">size</font>',
-			3, '<font size="3">size</font>',
-			4, '<font size="4">size</font>',
-			5, '<font size="5">size</font>',
-			6, '<font size="6">size</font>',
-			7, '<font size="7">size</font>'],
+		list: [1, '<font size="1">Aa</font>',
+			2, '<font size="2">Aa</font>',
+			3, '<font size="3">Aa<span style="font-size: 12px;">(默认)<span></font>',
+			4, '<font size="4">Aa</font>',
+			5, '<font size="5">Aa</font>',
+			6, '<font size="6">Aa</font>',
+			7, '<font size="7">Aa</font>'],
 		listClick: function ($node, value) {
-			console.log(value);
-			$.spellnote.funcs.executeCommand('FontSize', parseInt(value));
+			$.spellnote.funcs.executeCommand('fontSize', parseInt(value));
+		},
+	};
+
+	var foreColor = {
+		title: '字体颜色',
+		list: $.spellnote.constant.colorUnitList,
+		listClick: function ($node, value) {
+			$.spellnote.funcs.executeCommand('foreColor', value);
+		},
+	};
+
+	var backColor = {
+		title: '背景颜色',
+		list: $.spellnote.constant.colorUnitList,
+		listClick: function ($node, value) {
+			$.spellnote.funcs.executeCommand('backColor', value);
 		},
 	};
 
@@ -686,6 +738,9 @@ $.extend($.spellnote.units, function () {
 		redo: redo,
 		undo: undo,
 		fontSize: fontSize,
+		foreColor: foreColor,
+		backColor: backColor,
+		removeFormat: removeFormat,
 	};
 } ());
 
