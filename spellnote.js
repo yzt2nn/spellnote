@@ -29,7 +29,7 @@ $.extend({
 
 		this.rangeBuffer = undefined;
 
-		this.docScrollTop = 0;
+		this.docScrollTop = undefined;
 
 		this.tools = function () {
 			var indexOf = function (list, ele) {
@@ -54,9 +54,19 @@ $.extend({
 				return result;
 			};
 
+			var scrollToTop = function ($ele, time) {
+				time = time || 300;
+				var top = $ele.offset().top;
+				var winHeight = $(window).height();
+				$('html,body').animate({
+					scrollTop: top,
+				}, time);
+			};
+
 			return {
 				indexOf: indexOf,
 				getRandomStr: getRandomStr,
+				scrollToTop: scrollToTop,
 			};
 		}();
 
@@ -67,6 +77,10 @@ $.extend({
 
 			var $getUnit = function ($node, unitName) {
 				return $node.find('.sn-unit-name-' + unitName);
+			};
+
+			var $getUnitPanel = function ($node) {
+				return $node.find('.sn-unit-panel');
 			};
 
 			var $getEditor = function ($node) {
@@ -378,7 +392,11 @@ $.extend({
 				// 显示前先存储range
 				this.saveRangeToBuffer();
 				// 储存页面滚动位置
-				$.spellnote.docScrollTop = $(document).scrollTop();
+				if (!$.spellnote.docScrollTop)
+					$.spellnote.docScrollTop = $(document).scrollTop();
+
+				var $unitPanel = this.$getUnitPanel($node);
+				$unitPanel.css('top', 0);
 
 				var title = obj['title'] || 'Modal';
 				var contentHtml = obj['contentHtml'] || 'There is nothing.';
@@ -398,11 +416,12 @@ $.extend({
 				var $title = $('<div class="sn-modal-title">' + title + '</div>');
 				var $content = $('<div class="sn-modal-content">' + contentHtml + '</div>');
 				var $buttonBar = $('<div class="sn-modal-button-bar">' + buttonText + '</div>');
-				var $closeButton = $('<div class="sn-modal-close-button">返回</div>');
+				var $closeButton = $('<div class="sn-modal-close-button icon-cancel"></div>');
 				$closeButton.on('click', function () {
 					$modal.slideUp(50, function () {
 						$node.find('.sn-editor-panel').slideDown(100, function () {
 							$(document).scrollTop($.spellnote.docScrollTop);
+							$.spellnote.docScrollTop = undefined;
 						});
 					});
 					$(this).off();
@@ -418,6 +437,7 @@ $.extend({
 
 				$node.find('.sn-editor-panel').slideUp(50, function () {
 					$modal.slideDown(100);
+					$.spellnote.tools.scrollToTop($node);
 				});
 
 			};
@@ -433,6 +453,7 @@ $.extend({
 			return {
 				$getUnits: $getUnits,
 				$getUnit: $getUnit,
+				$getUnitPanel: $getUnitPanel,
 				$getEditor: $getEditor,
 				$getCodeEditor: $getCodeEditor,
 				getSnObj: getSnObj,
@@ -521,7 +542,7 @@ $.extend({
 							var thisOffset = $this.offset();
 							$list.css({
 								left: thisOffset.left,
-								top: thisOffset.top + $this.outerHeight() + 2,
+								top: thisOffset.top + $this.outerHeight() - $(document).scrollTop() + 2,
 							});
 							$unit.addClass('sn-unit-list-active');
 							$list.addClass('show');
@@ -713,6 +734,14 @@ $.extend({
 				maxHeight: options['maxHeight'],
 				height: options['height'],
 			});
+
+			if (options['cleanHtmlOnPaste']) {
+				$editor.on('paste', function (e) {
+					e.preventDefault ? e.preventDefault() : (e.returnValue = false);
+					var bufferText = ((e.originalEvent || e).clipboardData || window.clipboardData).getData('Text/plain');
+					document.execCommand("insertText", false, bufferText);
+				});
+			}
 		};
 
 		this.enable = function ($node) {
@@ -727,9 +756,12 @@ $.extend({
 			var html = args.length > 1 ? args[1] : undefined;
 			if (html) {
 				$.spellnote.funcs.$getEditor($node).html(html);
+				$.spellnote.funcs.formatEditorHtml($node);
 			}
-			else
+			else {
+				$.spellnote.funcs.formatEditorHtml($node);
 				return $.spellnote.funcs.$getEditor($node).html();
+			}
 		};
 	},
 });
@@ -748,6 +780,7 @@ $.extend($.spellnote.units, function () {
 			$codeEditor.text($editor.html());
 			$editor.slideUp(100, function () {
 				$codeEditor.slideDown(300);
+				$.spellnote.tools.scrollToTop($node);
 			});
 		},
 		click_deactive: function ($node) {
@@ -979,6 +1012,46 @@ $.extend($.spellnote.units, function () {
 		},
 	};
 
+	var link = {
+		title: '插入链接',
+		iconClass: 'icon-link',
+		click: function ($node, e) {
+			$.spellnote.funcs.showModal($node, {
+				title: '插入链接',
+				contentHtml: '<div><p>链接文本:<p><input class="sn-input sn-link-text-input" type="text" />'
+				+ '<p>链接地址:</p><input class="sn-input sn-link-href-input" type="text" />'
+				+ '</div>',
+				buttonText: '确认',
+				callback: function ($modal, close) {
+					var text = $modal.find('.sn-link-text-input').val();
+					var href = $modal.find('.sn-link-href-input').val();
+					if (text == '' && href != '')
+						text = href;
+					else if (href == '') {
+						alert('链接地址不能为空！');
+						return;
+					}
+					var obj = $.spellnote.funcs.getSnObj($node);
+					if (obj.callback.onLinkInsert)
+						obj.callback.onLinkInsert(text, href);
+					else {
+						var $a = $('<a class="sn-l" href="' + href + '">' + text + '</a>')
+						$.spellnote.funcs.insertNode($node, $a[0]);
+					}
+					close();
+				},
+			});
+		},
+	};
+
+	var unlink = {
+		title: '移除链接',
+		iconClass: 'icon-unlink',
+		click: function ($node, e) {
+			$.spellnote.funcs.executeCommand('unlink');
+		},
+	};
+
 	var test = {
 		title: '测试项',
 		click: function ($node, e) {
@@ -1002,6 +1075,8 @@ $.extend($.spellnote.units, function () {
 		video: video,
 		music: music,
 		image: image,
+		link: link,
+		unlink: unlink,
 	};
 }());
 

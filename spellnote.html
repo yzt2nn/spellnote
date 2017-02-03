@@ -8,26 +8,28 @@
 </head>
 
 <body>
-	<div>asfasdf<br>asfasdf<br>asasfasdf<br>asfasdf<br>asfasdf<br>asfasdf<br>asfasdf<br>asfasdf<br>asfasdf<br>asfasdf<br>asfasdf<br>asfasdf<br>asfasdf<br>fasdf<br>asfasdf<br>asfasdf<br>asfasdf<br>asfasdf<br>asfasdf<br>asfasdf<br>asfasdf<br>asfasdf<br></div>
+	<!--<div>asfasdf<br>asfasdf<br>asasfasdf<br>asfasdf<br>asfasdf<br>asfasdf<br>asfasdf<br>asfasdf<br>asfasdf<br>asfasdf<br>asfasdf<br>asfasdf<br>asfasdf<br>fasdf<br>asfasdf<br>asfasdf<br>asfasdf<br>asfasdf<br>asfasdf<br>asfasdf<br>asfasdf<br>asfasdf<br></div>-->
 	<div class="spellnote1" style=""></div>
 	<div class="spellnote2" style=""></div>
+	<!--<div>asfasdf<br>asfasdf<br>asasfasdf<br>asfasdf<br>asfasdf<br>asfasdf<br>asfasdf<br>asfasdf<br>asfasdf<br>asfasdf<br>asfasdf<br>asfasdf<br>asfasdf<br>fasdf<br>asfasdf<br>asfasdf<br>asfasdf<br>asfasdf<br>asfasdf<br>asfasdf<br>asfasdf<br>asfasdf<br></div>-->
 	<script src="./jquery-3.0.0.js"></script>
 	<script src="./spellnote.js"></script>
 	<script>
 		$('.spellnote1').spellnote('init', {
-			units: [['undo', 'redo'], ['bold', 'italic', 'underline', 'strikeThrough'], ['fontSize', 'foreColor', 'backColor'], 'removeFormat', ['image', 'music', 'video'], 'code'],
+			cleanHtmlOnPaste: true,
+			units: [['undo', 'redo'], ['bold', 'italic', 'underline', 'strikeThrough'], ['fontSize', 'foreColor', 'backColor'], 'removeFormat', ['image', 'music', 'video'], ['link', 'unlink'], 'code'],
 			callback: {
 				onImageUpload: function(file){
 					alert('aaaa');
 				},
 			},
 		});
-			// $('.spellnote2').spellnote('init', {
-			// 	maxWidth: 600,
-			// 	width: 500,
-			// 	height: 400,
-			// 	units : [['undo', 'redo'], ['bold', 'italic', 'underline', 'strikeThrough'], 'fontSize', 'code'],
-			// });
+			$('.spellnote2').spellnote('init', {
+				maxWidth: 600,
+				width: 500,
+				height: 400,
+				units: [['undo', 'redo'], ['bold', 'italic', 'underline', 'strikeThrough'], ['fontSize', 'foreColor', 'backColor'], 'removeFormat', ['image', 'music', 'video'], 'code'],
+			});
 	</script>
 </body>
 
