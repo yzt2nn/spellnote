@@ -23,7 +23,7 @@ $.extend({
 					'#634AA5', '<span class="sn-unit-foreColor-preview" style="background-color: #634AA5;"></span>',
 					'#E79C9C', '<span class="sn-unit-foreColor-preview" style="background-color: #E79C9C;"></span>',]
 			};
-		} ();
+		}();
 
 		this.rangeBuffer = undefined;
 
@@ -43,7 +43,7 @@ $.extend({
 			return {
 				indexOf: indexOf,
 			};
-		} ();
+		}();
 
 		this.funcs = function () {
 			var $getUnits = function ($node) {
@@ -80,11 +80,11 @@ $.extend({
 			};
 
 			var createRange = function (isNew) {
-				if (isNew){
-					try{
+				if (isNew) {
+					try {
 						return new Range();
 					}
-					catch(ex){
+					catch (ex) {
 						return selection.createRange();
 					}
 				}
@@ -431,7 +431,7 @@ $.extend({
 				isRangeBelongTo: isRangeBelongTo,
 				getRangeBelongTo: getRangeBelongTo,
 			};
-		} ();
+		}();
 
 		this.units = {};
 
@@ -798,8 +798,23 @@ $.extend($.spellnote.units, function () {
 				title: '插入视频',
 				contentHtml: '<div><p>视频链接:<p><input class="sn-input sn-video-input" type="text" /></div><p>请输入视频的网址，目前仅支持bilibili视频。</p>',
 				buttonText: '确认',
-				callback: function ($modal) {
-					alert($modal.find('.sn-video-input').val())
+				callback: function ($modal, close) {
+					var url = $modal.find('.sn-video-input').val();
+					var biliRegExp = /bilibili.com\/video\/av([0-9]+)(\/index_([0-9]+).html)?/;
+					var biliMatch = url.match(biliRegExp);
+
+					var $video;
+
+					if (biliMatch) {
+						$video = $('<iframe>')
+							.attr('src', 'http://static.hdslb.com/miniloader.swf?aid=' + biliMatch[1] + '&page=' + (biliMatch[3] == undefined ? '1' : biliMatch[3]))
+							.attr({ 'height': 415, 'width': 544, 'frameborder': 'no' });
+					}
+					if ($video) {
+						$video.addClass('sn-v');
+						$.spellnote.funcs.insertNode($node, $video[0]);
+						close();
+					}
 				},
 			});
 		},
@@ -819,7 +834,6 @@ $.extend($.spellnote.units, function () {
 
 					var $music;
 
-
 					if (neteaseMatch) {
 						$music = $('<iframe>')
 							.attr('src', 'http://music.163.com/outchain/player?type=2&id=' + neteaseMatch[1] + '&auto=0&height=66')
@@ -831,8 +845,24 @@ $.extend($.spellnote.units, function () {
 					if ($music) {
 						$music.addClass('sn-m');
 						$.spellnote.funcs.insertNode($node, $music[0]);
+						//$.spellnote.funcs.insertHtml($node, $music[0].outerHTML);
 						close();
 					}
+				},
+			});
+		},
+	};
+
+	var image = {
+		title: '图片',
+		click: function ($node, e) {
+			$.spellnote.funcs.showModal($node, {
+				title: '插入图片',
+				contentHtml: '<div><p>从本地选择图片:<p><input class="sn-input sn-image-input" type="file" name="files" accept="image/jpg,image/jpeg,image/gif,image/bmp,image/png" /></div>',
+				buttonText: '确认',
+				callback: function ($modal, close) {
+					var file = $modal.find('.sn-image-input')[0].files[0];
+					console.log(file);
 				},
 			});
 		},
@@ -863,8 +893,9 @@ $.extend($.spellnote.units, function () {
 		removeFormat: removeFormat,
 		video: video,
 		music: music,
+		image: image,
 	};
-} ());
+}());
 
 $.fn.extend({
 	spellnote: function () {

@@ -207,3 +207,8 @@
     height: 20px;
     outline: none;
 }
+
+.sn-v,
+.sn-m{
+    max-width: 98%;
+}
