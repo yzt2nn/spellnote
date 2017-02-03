@@ -29,6 +29,8 @@ $.extend({
 
 		this.rangeBuffer = undefined;
 
+		this.docScrollTop = 0;
+
 		this.tools = function () {
 			var indexOf = function (list, ele) {
 				/**
@@ -42,11 +44,11 @@ $.extend({
 				return (i >= len) ? -1 : i;
 			};
 
-			var getRandomStr = function(len){
+			var getRandomStr = function (len) {
 				var result = '';
-				var rlen = len || 8;
+				len = len || 8;
 				var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-				for(var i = 0; i < rlen; i++){
+				for (var i = 0; i < len; i++) {
 					result += chars[Math.floor(Math.random() * 51)];
 				}
 				return result;
@@ -375,6 +377,8 @@ $.extend({
 			var showModal = function ($node, obj) {
 				// 显示前先存储range
 				this.saveRangeToBuffer();
+				// 储存页面滚动位置
+				$.spellnote.docScrollTop = $(document).scrollTop();
 
 				var title = obj['title'] || 'Modal';
 				var contentHtml = obj['contentHtml'] || 'There is nothing.';
@@ -397,7 +401,9 @@ $.extend({
 				var $closeButton = $('<div class="sn-modal-close-button">返回</div>');
 				$closeButton.on('click', function () {
 					$modal.slideUp(50, function () {
-						$node.find('.sn-editor-panel').slideDown(100);
+						$node.find('.sn-editor-panel').slideDown(100, function () {
+							$(document).scrollTop($.spellnote.docScrollTop);
+						});
 					});
 					$(this).off();
 					$buttonBar.off();
@@ -416,9 +422,9 @@ $.extend({
 
 			};
 
-			var getSnObj = function($node){
+			var getSnObj = function ($node) {
 				var id = $node.data('snid');
-				if($.spellnote.snObjs[id])
+				if ($.spellnote.snObjs[id])
 					return $.spellnote.snObjs[id];
 				else
 					return undefined;
@@ -465,7 +471,13 @@ $.extend({
 				$unit = unit.init();
 			}
 			else {
-				$unit = $('<button>').html(unit.title);
+				if (unit.iconClass) {
+					$unit = $('<button>').addClass(unit.iconClass);
+					if (unit.title)
+						$unit.attr('title', unit.title);
+				}
+				else
+					$unit = $('<button>').text(unit.title);
 			}
 			$unit.addClass('sn-unit').addClass('sn-unit-name-' + name)
 				.data('event', unit.listenEvent == 'false' ? 'false' : 'true')
@@ -551,6 +563,8 @@ $.extend({
 			}
 			$node.append($units);
 
+			var snObj = $.spellnote.funcs.getSnObj($node);
+
 			// 绑定按钮列表适时消失事件（滚动或点击空白处）
 			$(document).on('scroll click', function (e) {
 				var $target = $(e.target);
@@ -559,6 +573,29 @@ $.extend({
 					$('.sn-unit-expanding-list.show').slideUp(200);
 					$('.sn-unit-list-active').removeClass('sn-unit-list-active');
 				}
+
+				// 绑定unit panel 到顶悬停事件
+				if (snObj.unitsScrollTimeout) {
+					clearTimeout(snObj.unitsScrollTimeout);
+					snObj.unitsScrollTimeout = undefined;
+				}
+
+				snObj.unitsScrollTimeout = setTimeout(function () {
+					var range = $.spellnote.funcs.createRange();
+					if ($.spellnote.funcs.isRangeBelongTo($node, range)) {
+						// 把当前range所属的编辑器工具栏置顶
+						var nodeOffsetTop = $node.offset().top;
+						var scrollTop = $(document).scrollTop();
+						$units.stop();
+						if (scrollTop > nodeOffsetTop)
+							$units.animate({ 'top': scrollTop - nodeOffsetTop }, 200);
+						else
+							$units.animate({ 'top': 0 }, 200);
+					}
+					else
+						$units.animate({ 'top': 0 }, 200);
+				}, 300);
+
 			});
 		};
 
@@ -616,6 +653,8 @@ $.extend({
 			}).on('blur', function (e) {
 				e.stopPropagation();
 			});
+
+			return $editor;
 		};
 
 		this.triggerEvent = function ($node, e) {
@@ -663,10 +702,16 @@ $.extend({
 			$.spellnote.snObjs[id] = snObj;
 
 			this.unitsInit($node, options.units);
-			this.editorInit($node);
+			var $editor = this.editorInit($node);
 			this.registeEventHandler($node);
 			$node.css({
 				position: 'relative',
+				maxWitdh: options['maxWidth'],
+				width: options['width'],
+			});
+			$editor.css({
+				maxHeight: options['maxHeight'],
+				height: options['height'],
 			});
 		};
 
@@ -677,6 +722,15 @@ $.extend({
 		this.disable = function ($node) {
 			this.funcs.getEditor($node).attr('contenteditable', 'false');
 		};
+
+		this.html = function ($node, args) {
+			var html = args.length > 1 ? args[1] : undefined;
+			if (html) {
+				$.spellnote.funcs.$getEditor($node).html(html);
+			}
+			else
+				return $.spellnote.funcs.$getEditor($node).html();
+		};
 	},
 });
 
@@ -686,23 +740,29 @@ $.extend({
 $.extend($.spellnote.units, function () {
 	var code = {
 		title: '查看代码',
+		iconClass: 'icon-code',
 		statusList: ['deactive', 'active'],
 		click_active: function ($node) {
 			var $editor = $.spellnote.funcs.$getEditor($node);
 			var $codeEditor = $.spellnote.funcs.$getCodeEditor($node);
 			$codeEditor.text($editor.html());
-			$codeEditor.show();
+			$editor.slideUp(100, function () {
+				$codeEditor.slideDown(300);
+			});
 		},
 		click_deactive: function ($node) {
 			var $editor = $.spellnote.funcs.$getEditor($node);
 			var $codeEditor = $.spellnote.funcs.$getCodeEditor($node);
 			$editor.html($codeEditor.text());
-			$codeEditor.hide();
+			$codeEditor.slideUp(100, function () {
+				$editor.slideDown(300);
+			});
 		},
 	};
 
 	var bold = {
 		title: '加粗',
+		iconClass: 'icon-bold',
 		statusList: ['deactive', 'active'],
 		click_active: function ($node) {
 			$.spellnote.funcs.executeCommand('bold');
@@ -720,6 +780,7 @@ $.extend($.spellnote.units, function () {
 
 	var italic = {
 		title: '斜体',
+		iconClass: 'icon-italic',
 		statusList: ['deactive', 'active'],
 		click_active: function ($node) {
 			$.spellnote.funcs.executeCommand('italic');
@@ -738,6 +799,7 @@ $.extend($.spellnote.units, function () {
 
 	var underline = {
 		title: '下划线',
+		iconClass: 'icon-underline',
 		statusList: ['deactive', 'active'],
 		click_active: function ($node) {
 			$.spellnote.funcs.executeCommand('underline');
@@ -755,6 +817,7 @@ $.extend($.spellnote.units, function () {
 
 	var strikeThrough = {
 		title: '删除线',
+		iconClass: 'icon-strike',
 		statusList: ['deactive', 'active'],
 		click_active: function ($node) {
 			$.spellnote.funcs.executeCommand('strikeThrough');
@@ -772,6 +835,7 @@ $.extend($.spellnote.units, function () {
 
 	var removeFormat = {
 		title: '清除样式',
+		iconClass: 'icon-eraser',
 		click: function ($node) {
 			$.spellnote.funcs.executeCommand('removeFormat');
 			$.spellnote.updateUnitsStatus($node);
@@ -780,6 +844,7 @@ $.extend($.spellnote.units, function () {
 
 	var undo = {
 		title: '撤销',
+		iconClass: 'icon-ccw',
 		click: function ($node) {
 			$.spellnote.funcs.executeCommand('undo');
 			$.spellnote.updateUnitsStatus($node);
@@ -788,6 +853,7 @@ $.extend($.spellnote.units, function () {
 
 	var redo = {
 		title: '重做',
+		iconClass: 'icon-cw',
 		click: function ($node) {
 			$.spellnote.funcs.executeCommand('redo');
 			$.spellnote.updateUnitsStatus($node);
@@ -796,6 +862,7 @@ $.extend($.spellnote.units, function () {
 
 	var fontSize = {
 		title: '字体大小',
+		iconClass: 'icon-text-height',
 		list: [1, '<font size="1">Aa</font>',
 			2, '<font size="2">Aa</font>',
 			3, '<font size="3">Aa<span style="font-size: 12px;">(默认)<span></font>',
@@ -810,6 +877,7 @@ $.extend($.spellnote.units, function () {
 
 	var foreColor = {
 		title: '字体颜色',
+		iconClass: 'icon-font',
 		list: $.spellnote.constant.colorUnitList,
 		listClick: function ($node, value) {
 			$.spellnote.funcs.executeCommand('foreColor', value);
@@ -818,6 +886,7 @@ $.extend($.spellnote.units, function () {
 
 	var backColor = {
 		title: '背景颜色',
+		iconClass: 'icon-font-reverse',
 		list: $.spellnote.constant.colorUnitList,
 		listClick: function ($node, value) {
 			$.spellnote.funcs.executeCommand('backColor', value);
@@ -825,7 +894,8 @@ $.extend($.spellnote.units, function () {
 	};
 
 	var video = {
-		title: '视频',
+		title: '插入视频',
+		iconClass: 'icon-video',
 		click: function ($node, e) {
 			$.spellnote.funcs.showModal($node, {
 				title: '插入视频',
@@ -843,6 +913,9 @@ $.extend($.spellnote.units, function () {
 							.attr('src', 'http://static.hdslb.com/miniloader.swf?aid=' + biliMatch[1] + '&page=' + (biliMatch[3] == undefined ? '1' : biliMatch[3]))
 							.attr({ 'height': 415, 'width': 544, 'frameborder': 'no' });
 					}
+					else
+						alert('链接不正确！');
+
 					if ($video) {
 						$video.addClass('sn-v');
 						$.spellnote.funcs.insertNode($node, $video[0]);
@@ -854,7 +927,8 @@ $.extend($.spellnote.units, function () {
 	};
 
 	var music = {
-		title: '音乐',
+		title: '插入音乐',
+		iconClass: 'icon-music',
 		click: function ($node, e) {
 			$.spellnote.funcs.showModal($node, {
 				title: '插入音乐',
@@ -887,7 +961,8 @@ $.extend($.spellnote.units, function () {
 	};
 
 	var image = {
-		title: '图片',
+		title: '插入图片',
+		iconClass: 'icon-picture',
 		click: function ($node, e) {
 			$.spellnote.funcs.showModal($node, {
 				title: '插入图片',
@@ -896,7 +971,7 @@ $.extend($.spellnote.units, function () {
 				callback: function ($modal, close) {
 					var file = $modal.find('.sn-image-input')[0].files[0];
 					var obj = $.spellnote.funcs.getSnObj($node);
-					if(obj.callback.onImageUpload)
+					if (obj.callback.onImageUpload)
 						obj.callback.onImageUpload(file);
 					close();
 				},
@@ -905,12 +980,9 @@ $.extend($.spellnote.units, function () {
 	};
 
 	var test = {
-		title: '分割range',
+		title: '测试项',
 		click: function ($node, e) {
-			var range = $.spellnote.funcs.createRange();
-			var nodes = $.spellnote.funcs.splitRangeToNodes(range);
-			for (var i in nodes)
-				console.log($nodes[i]);
+
 		},
 	};
 
@@ -936,6 +1008,6 @@ $.extend($.spellnote.units, function () {
 $.fn.extend({
 	spellnote: function () {
 		var $node = $(this);
-		$.spellnote[arguments[0]]($node, arguments);
+		return $.spellnote[arguments[0]]($node, arguments);
 	},
 });

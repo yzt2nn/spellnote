@@ -1,12 +1,89 @@
+@font-face {
+  font-family: 'font-awesome-for-spellnote';
+  src: url('./font/font-awesome-for-spellnote.eot?13833932');
+  src: url('./font/font-awesome-for-spellnote.eot?13833932#iefix') format('embedded-opentype'),
+       url('./font/font-awesome-for-spellnote.woff2?13833932') format('woff2'),
+       url('./font/font-awesome-for-spellnote.woff?13833932') format('woff'),
+       url('./font/font-awesome-for-spellnote.ttf?13833932') format('truetype'),
+       url('./font/font-awesome-for-spellnote.svg?13833932#font-awesome-for-spellnote') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+/* Chrome hack: SVG is rendered more smooth in Windozze. 100% magic, uncomment if you need it. */
+/* Note, that will break hinting! In other OS-es font will be not as sharp as it could be */
+/*
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+  @font-face {
+    font-family: 'font-awesome-for-spellnote';
+    src: url('./font/font-awesome-for-spellnote.svg?13833932#default') format('svg');
+  }
+}
+*/
+ 
+ [class^="icon-"]:before, [class*=" icon-"]:before {
+  font-family: "font-awesome-for-spellnote";
+  font-style: normal;
+  font-weight: normal;
+  speak: none;
+ 
+  display: inline-block;
+  text-decoration: inherit;
+  width: 1em;
+  margin-right: .2em;
+  text-align: center;
+  /* opacity: .8; */
+ 
+  /* For safety - reset parent styles, that can break glyph codes*/
+  font-variant: normal;
+  text-transform: none;
+ 
+  /* fix buttons height, for twitter bootstrap */
+  line-height: 1em;
+ 
+  /* Animation center compensation - margins should be symmetric */
+  /* remove if not needed */
+  margin-left: .2em;
+ 
+  /* you can be more comfortable with increased icons size */
+  /* font-size: 120%; */
+ 
+  /* Font smoothing. That was taken from TWBS */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+ 
+  /* Uncomment for 3D effect */
+  /* text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3); */
+}
+ 
+.icon-bold:before { content: '\e800'; } /* '' */
+.icon-italic:before { content: '\e801'; } /* '' */
+.icon-text-height:before { content: '\e802'; } /* '' */
+.icon-font:before { content: '\e803'; } /* '' */
+.icon-font-reverse:before { content: '\e803'; color: #FFFFFF; background-color: #000000; } /* '' */
+.icon-music:before { content: '\e804'; } /* '' */
+.icon-video:before { content: '\e805'; } /* '' */
+.icon-picture:before { content: '\e806'; } /* '' */
+.icon-cw:before { content: '\e807'; } /* '' */
+.icon-ccw:before { content: '\e808'; } /* '' */
+.icon-strike:before { content: '\f0cc'; } /* '' */
+.icon-underline:before { content: '\f0cd'; } /* '' */
+.icon-code:before { content: '\f121'; } /* '' */
+.icon-eraser:before { content: '\f12d'; } /* '' */
+
+/*---------------------------------------------------------------------------------------------*/
+
 .sn-modal{
     font-family: 'Microsoft Yahei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
 .sn-unit-panel{
+    position: relative;
     width: 100%;
     border-radius: 5px 5px 0px 0px;
     border: 1px solid #CCCCCC;
     border-bottom: none;
+    z-index: 999;
+    background-color: #FFFFFF;
 }
 
 .sn-editor-panel{
@@ -19,6 +96,7 @@
 
 .sn-editor-panel .sn-editor,
 .sn-editor-panel .sn-code-editor{
+    position: relative;
     padding: 15px 10px 10px 10px;
     width: 100%;
     min-height: 300px;
@@ -28,17 +106,11 @@
     -moz-box-sizing:border-box; /* Firefox */
     -webkit-box-sizing:border-box; /* Safari */
     word-wrap: break-word;
+    overflow: auto;
 }
 
 .sn-editor-panel .sn-editor{
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-}
-
-.sn-editor-panel .sn-code-editor{
-    position: absolute;
-    left: 0px;
-    top: 0px;
-    height: 100%;
 }
 
 .sn-editor-panel .sn-editor p{

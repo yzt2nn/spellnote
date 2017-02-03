@@ -8,14 +8,14 @@
 </head>
 
 <body>
-	<div>12323</div>
-	<div class="spellnote1" style="max-width: 600px;"></div>
-	<div class="spellnote2" style="max-width: 600px;"></div>
+	<div>asfasdf<br>asfasdf<br>asasfasdf<br>asfasdf<br>asfasdf<br>asfasdf<br>asfasdf<br>asfasdf<br>asfasdf<br>asfasdf<br>asfasdf<br>asfasdf<br>asfasdf<br>fasdf<br>asfasdf<br>asfasdf<br>asfasdf<br>asfasdf<br>asfasdf<br>asfasdf<br>asfasdf<br>asfasdf<br></div>
+	<div class="spellnote1" style=""></div>
+	<div class="spellnote2" style=""></div>
 	<script src="./jquery-3.0.0.js"></script>
 	<script src="./spellnote.js"></script>
 	<script>
 		$('.spellnote1').spellnote('init', {
-			units: [['undo', 'redo'], ['bold', 'italic', 'underline', 'strikeThrough'], ['foreColor', 'backColor'], 'fontSize', 'removeFormat', ['image', 'music', 'video'], 'code', 'test'],
+			units: [['undo', 'redo'], ['bold', 'italic', 'underline', 'strikeThrough'], ['fontSize', 'foreColor', 'backColor'], 'removeFormat', ['image', 'music', 'video'], 'code'],
 			callback: {
 				onImageUpload: function(file){
 					alert('aaaa');
@@ -23,6 +23,9 @@
 			},
 		});
 			// $('.spellnote2').spellnote('init', {
+			// 	maxWidth: 600,
+			// 	width: 500,
+			// 	height: 400,
 			// 	units : [['undo', 'redo'], ['bold', 'italic', 'underline', 'strikeThrough'], 'fontSize', 'code'],
 			// });
 	</script>
