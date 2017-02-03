@@ -25,6 +25,8 @@ $.extend({
 			};
 		}();
 
+		this.snObjs = new Object();
+
 		this.rangeBuffer = undefined;
 
 		this.tools = function () {
@@ -40,8 +42,19 @@ $.extend({
 				return (i >= len) ? -1 : i;
 			};
 
+			var getRandomStr = function(len){
+				var result = '';
+				var rlen = len || 8;
+				var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+				for(var i = 0; i < rlen; i++){
+					result += chars[Math.floor(Math.random() * 51)];
+				}
+				return result;
+			};
+
 			return {
 				indexOf: indexOf,
+				getRandomStr: getRandomStr,
 			};
 		}();
 
@@ -403,11 +416,20 @@ $.extend({
 
 			};
 
+			var getSnObj = function($node){
+				var id = $node.data('snid');
+				if($.spellnote.snObjs[id])
+					return $.spellnote.snObjs[id];
+				else
+					return undefined;
+			};
+
 			return {
 				$getUnits: $getUnits,
 				$getUnit: $getUnit,
 				$getEditor: $getEditor,
 				$getCodeEditor: $getCodeEditor,
+				getSnObj: getSnObj,
 				createSelection: createSelection,
 				createRange: createRange,
 				isEditable: isEditable,
@@ -629,6 +651,17 @@ $.extend({
 
 		this.init = function ($node, args) {
 			var options = args[1];
+
+			// 新建编辑器对象
+			var snObj = new Object();
+			snObj['$node'] = $node;
+			snObj['rangeBuffer'] = undefined;
+			snObj['callback'] = options['callback'] || new Object();
+			var id = $.spellnote.tools.getRandomStr();
+			$node.data('snid', id);
+			snObj['id'] = id;
+			$.spellnote.snObjs[id] = snObj;
+
 			this.unitsInit($node, options.units);
 			this.editorInit($node);
 			this.registeEventHandler($node);
@@ -862,7 +895,10 @@ $.extend($.spellnote.units, function () {
 				buttonText: '确认',
 				callback: function ($modal, close) {
 					var file = $modal.find('.sn-image-input')[0].files[0];
-					console.log(file);
+					var obj = $.spellnote.funcs.getSnObj($node);
+					if(obj.callback.onImageUpload)
+						obj.callback.onImageUpload(file);
+					close();
 				},
 			});
 		},
