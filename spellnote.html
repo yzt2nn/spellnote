@@ -17,7 +17,7 @@
 	<script>
 		$('.spellnote1').spellnote('init', {
 			cleanHtmlOnPaste: true,
-			units: [['undo', 'redo'], ['bold', 'italic', 'underline', 'strikeThrough'], ['fontSize', 'foreColor', 'backColor'], 'removeFormat', ['image', 'music', 'video'], ['link', 'unlink'], 'code'],
+			units: [['undo', 'redo'], ['bold', 'italic', 'underline', 'strikeThrough'], ['fontSize', 'foreColor', 'backColor'],['alignLeft', 'alignCenter', 'alignRight'], 'removeFormat', ['image', 'music', 'video'], ['link', 'unlink'], 'code', 'about'],
 			callback: {
 				onImageUpload: function(file){
 					alert('aaaa');
@@ -28,7 +28,7 @@
 				maxWidth: 600,
 				width: 500,
 				height: 400,
-				units: [['undo', 'redo'], ['bold', 'italic', 'underline', 'strikeThrough'], ['fontSize', 'foreColor', 'backColor'], 'removeFormat', ['image', 'music', 'video'], 'code'],
+				units: [ 'test',['undo', 'redo'], ['bold', 'italic', 'underline', 'strikeThrough'], ['fontSize', 'foreColor', 'backColor'], 'removeFormat', ['image', 'music', 'video'], 'code'],
 			});
 	</script>
 </body>

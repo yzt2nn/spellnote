@@ -54,13 +54,13 @@ $.extend({
 				return result;
 			};
 
-			var scrollToTop = function ($ele, time) {
-				time = time || 300;
+			var scrollToTop = function ($ele, duration) {
+				duration = duration || 300;
 				var top = $ele.offset().top;
 				var winHeight = $(window).height();
 				$('html,body').animate({
 					scrollTop: top,
-				}, time);
+				}, duration);
 			};
 
 			return {
@@ -404,42 +404,78 @@ $.extend({
 				var callback = obj['callback'] || function () { };
 				var autoClose = obj['autoClose'] === undefined ? false : obj['autoClose'];
 
-				var $modal = $node.find('.sn-modal');
-				if ($modal.length > 0) {
-					$modal.find('.sn-modal-button-bar').off();
-					$modal.find('.sn-modal-close-button').off();
-					$modal.slideUp(50);
-					$modal.remove();
+				var $otherModal = $node.find('.sn-modal');
+				if ($otherModal.length > 0) {
+					$otherModal.find('.sn-modal-button-bar').off();
+					$otherModal.find('.sn-modal-close-button').off();
+					$otherModal.slideUp(50, function () {
+						$otherModal.remove();
+					});
 				}
 
-				$modal = $('<div class="sn-modal"></div>');
+				var $modal = $('<div class="sn-modal"></div>');
 				var $title = $('<div class="sn-modal-title">' + title + '</div>');
 				var $content = $('<div class="sn-modal-content">' + contentHtml + '</div>');
 				var $buttonBar = $('<div class="sn-modal-button-bar">' + buttonText + '</div>');
 				var $closeButton = $('<div class="sn-modal-close-button icon-cancel"></div>');
 				$closeButton.on('click', function () {
 					$modal.slideUp(50, function () {
+						$(this).off();
+						$buttonBar.off();
+						$modal.remove();
+
 						$node.find('.sn-editor-panel').slideDown(100, function () {
 							$(document).scrollTop($.spellnote.docScrollTop);
 							$.spellnote.docScrollTop = undefined;
 						});
 					});
-					$(this).off();
-					$buttonBar.off();
-					$modal.remove();
 				});
 				$buttonBar.on('click', function () {
 					callback($modal, function () { $closeButton.click() });
 				});
 				$modal.append($title).append($content).append($buttonBar).append($closeButton);
-				$modal.insertAfter($node.find('.sn-unit-panel'));
-
+				$modal.insertBefore($node.find('.sn-editor-panel'));
 
 				$node.find('.sn-editor-panel').slideUp(50, function () {
 					$modal.slideDown(100);
 					$.spellnote.tools.scrollToTop($node);
 				});
 
+			};
+
+			var showTip = function ($node, content, type, autoHide, duration) {
+				// 先消除之前的提示
+				var otherTip = $node.find('.sn-tip');
+				if (otherTip.length > 0) {
+					otherTip.find('.sn-tip-close-button').off();
+					otherTip.remove();
+				}
+
+				autoHide = autoHide === undefined ? true : autoHide;
+				duration = duration || 5000;
+				type = type || 'warning';
+				content = content || 'This is a tip!';
+				var $tip = $('<div class="sn-tip"></div>');
+				var $tipIcon = $('<span class="sn-tip-icon icon-attention-circled"></span>');
+				$tipIcon.addClass(type);
+				var $tipContent = $('<span class="sn-tip-content">' + content + '</span>');
+				var $tipCloseButton = $('<div class="sn-tip-close-button icon-cancel"></div>');
+				$tip.append($tipIcon).append($tipContent).append($tipCloseButton);
+				$tipCloseButton.on('click', function () {
+					$(this).off();
+					$tip.slideUp(200, function () {
+						$tip.remove();
+					});
+				});
+
+				$tip.insertAfter($node.find('.sn-unit-panel'));
+				$tip.slideDown(200);
+
+				if (autoHide) {
+					setTimeout(function () {
+						$tipCloseButton.click();
+					}, duration);
+				}
 			};
 
 			var getSnObj = function ($node) {
@@ -479,6 +515,7 @@ $.extend({
 				showModal: showModal,
 				isRangeBelongTo: isRangeBelongTo,
 				getRangeBelongTo: getRangeBelongTo,
+				showTip: showTip,
 			};
 		}();
 
@@ -763,6 +800,22 @@ $.extend({
 				return $.spellnote.funcs.$getEditor($node).html();
 			}
 		};
+
+		this.tip = function ($node, args) {
+			var content = '';
+			if (typeof(args[1]) === 'string') {
+				content = args[1];
+				$.spellnote.funcs.showTip($node, content);
+			}
+			else {
+				var options = args[1];
+				content = options['content'];
+				var type = options['type'];
+				var autoHide = options['autoHide'];
+				var duration = options['duration'];
+				$.spellnote.funcs.showTip($node, content, type, autoHide, duration);
+			}
+		}
 	},
 });
 
@@ -947,7 +1000,7 @@ $.extend($.spellnote.units, function () {
 							.attr({ 'height': 415, 'width': 544, 'frameborder': 'no' });
 					}
 					else
-						alert('链接不正确！');
+						$.spellnote.funcs.showTip($node, '链接不正确！');
 
 					if ($video) {
 						$video.addClass('sn-v');
@@ -980,7 +1033,7 @@ $.extend($.spellnote.units, function () {
 							.attr({ 'height': 86, 'width': 330, 'frameborder': 'no' });
 					}
 					else {
-						alert('链接不正确！');
+						$.spellnote.funcs.showTip($node, '链接不正确！');
 					}
 					if ($music) {
 						$music.addClass('sn-m');
@@ -1028,7 +1081,7 @@ $.extend($.spellnote.units, function () {
 					if (text == '' && href != '')
 						text = href;
 					else if (href == '') {
-						alert('链接地址不能为空！');
+						$.spellnote.funcs.showTip($node, '链接地址不能为空！');
 						return;
 					}
 					var obj = $.spellnote.funcs.getSnObj($node);
@@ -1052,15 +1105,59 @@ $.extend($.spellnote.units, function () {
 		},
 	};
 
-	var test = {
-		title: '测试项',
+	var alignLeft = {
+		title: '段落居左',
+		iconClass: 'icon-align-left',
 		click: function ($node, e) {
+			$.spellnote.funcs.executeCommand('justifyLeft');
+		},
+	};
 
+	var alignCenter = {
+		title: '段落居中',
+		iconClass: 'icon-align-center',
+		click: function ($node, e) {
+			$.spellnote.funcs.executeCommand('justifyCenter');
+		},
+	};
+
+	var alignRight = {
+		title: '段落居右',
+		iconClass: 'icon-align-right',
+		click: function ($node, e) {
+			$.spellnote.funcs.executeCommand('justifyRight');
+		},
+	};
+
+	var about = {
+		title: '关于',
+		iconClass: 'icon-help',
+		click: function ($node, e) {
+			$.spellnote.funcs.showModal($node, {
+				title: '关于 Spellnote',
+				contentHtml:  '<p><span style="font-size: 20px;">SPELLNOTE</span> <span style="margin-left: 10px; font-size: 14px;">作者: 月之庭</span></p>'
+				+ '<p>spellnote是一款轻量级富文本编辑器，它的诞生是为了使某些扩展变得更加简单，其针对性较强，所以目前并不开源，仅在作者的网站使用。<p>'
+				+ '<p>建议使用Chrome或Firefox浏览器以获得最佳体验！</p>'
+				+ '<p>感谢 jQuery 与 Font Awesome 为Spellnote提供的便利！</p>'
+				+ '<p>若有意见、建议或BUG反馈，请发信至 lovenekomusume@163.com，谢谢！</p>',
+				buttonText: '继续使用 Spellnote',
+				callback: function ($modal, close) {
+					close();
+				},
+			});
+		},
+	};
+
+	var test = {
+		title: 'test',
+		click: function ($node, e) {
+			$.spellnote.funcs.showTip($node, 'error');
 		},
 	};
 
 	return {
 		test: test,
+		about: about,
 		code: code,
 		bold: bold,
 		italic: italic,
@@ -1077,6 +1174,9 @@ $.extend($.spellnote.units, function () {
 		image: image,
 		link: link,
 		unlink: unlink,
+		alignLeft: alignLeft,
+		alignCenter: alignCenter,
+		alignRight: alignRight,
 	};
 }());
 

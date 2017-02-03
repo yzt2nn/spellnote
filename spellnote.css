@@ -1,11 +1,11 @@
 @font-face {
   font-family: 'font-awesome-for-spellnote';
-  src: url('./font/font-awesome-for-spellnote.eot?6123968');
-  src: url('./font/font-awesome-for-spellnote.eot?6123968#iefix') format('embedded-opentype'),
-       url('./font/font-awesome-for-spellnote.woff2?6123968') format('woff2'),
-       url('./font/font-awesome-for-spellnote.woff?6123968') format('woff'),
-       url('./font/font-awesome-for-spellnote.ttf?6123968') format('truetype'),
-       url('./font/font-awesome-for-spellnote.svg?6123968#font-awesome-for-spellnote') format('svg');
+  src: url('./font/font-awesome-for-spellnote.eot?78775344');
+  src: url('./font/font-awesome-for-spellnote.eot?78775344#iefix') format('embedded-opentype'),
+       url('./font/font-awesome-for-spellnote.woff2?78775344') format('woff2'),
+       url('./font/font-awesome-for-spellnote.woff?78775344') format('woff'),
+       url('./font/font-awesome-for-spellnote.ttf?78775344') format('truetype'),
+       url('./font/font-awesome-for-spellnote.svg?78775344#default') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -15,7 +15,7 @@
 @media screen and (-webkit-min-device-pixel-ratio:0) {
   @font-face {
     font-family: 'font-awesome-for-spellnote';
-    src: url('../font/font-awesome-for-spellnote.svg?6123968#default') format('svg');
+    src: url('../font/font-awesome-for-spellnote.svg?78775344#default') format('svg');
   }
 }
 */
@@ -70,17 +70,31 @@
 .icon-left-big:before { content: '\e80b'; } /* '' */
 .icon-right-open:before { content: '\e80c'; } /* '' */
 .icon-right-big:before { content: '\e80d'; } /* '' */
-.icon-attention:before { content: '\e80e'; } /* '' */
 .icon-attention-circled:before { content: '\e80f'; } /* '' */
 .icon-cancel-circled:before { content: '\e810'; } /* '' */
 .icon-cancel:before { content: '\e811'; } /* '' */
+.icon-help-circled:before { content: '\e812'; } /* '' */
+.icon-align-left:before { content: '\e813'; } /* '' */
+.icon-align-center:before { content: '\e814'; } /* '' */
+.icon-align-right:before { content: '\e815'; } /* '' */
+.icon-align-justify:before { content: '\e816'; } /* '' */
+.icon-list:before { content: '\e817'; } /* '' */
+.icon-ok:before { content: '\e818'; } /* '' */
+.icon-ok-circled:before { content: '\e819'; } /* '' */
+.icon-list-bullet:before { content: '\f0ca'; } /* '' */
+.icon-list-numbered:before { content: '\f0cb'; } /* '' */
 .icon-strike:before { content: '\f0cc'; } /* '' */
 .icon-underline:before { content: '\f0cd'; } /* '' */
+.icon-table:before { content: '\f0ce'; } /* '' */
 .icon-quote-left:before { content: '\f10d'; } /* '' */
 .icon-code:before { content: '\f121'; } /* '' */
 .icon-unlink:before { content: '\f127'; } /* '' */
+.icon-help:before { content: '\f128'; } /* '' */
 .icon-attention-alt:before { content: '\f12a'; } /* '' */
+.icon-superscript:before { content: '\f12b'; } /* '' */
+.icon-subscript:before { content: '\f12c'; } /* '' */
 .icon-eraser:before { content: '\f12d'; } /* '' */
+.icon-header:before { content: '\f1dc'; } /* '' */
 
 /*---------------------------------------------------------------------------------------------*/
 
@@ -241,7 +255,8 @@
     font-size: 12px;
 }
 
-.sn-modal .sn-modal-close-button{
+.sn-modal .sn-modal-close-button,
+.sn-tip .sn-tip-close-button{
     position: absolute;
     top: 17px;
     right: 10px;
@@ -257,7 +272,8 @@
 }
 
 .sn-modal .sn-modal-button-bar:hover,
-.sn-modal .sn-modal-close-button:hover{
+.sn-modal .sn-modal-close-button:hover,
+.sn-tip .sn-tip-close-button:hover{
     background-color: #E6E6E6;
 }
 
@@ -290,6 +306,33 @@
     width: 80%;
     height: 20px;
     outline: none;
+}
+
+.sn-tip{
+    display: none;
+    position: relative;
+    padding: 10px 0px;
+    width: 100% ;
+    border: 1px solid #CCCCCC;
+    border-bottom: none;
+    font-size: 12px;
+}
+
+.sn-tip .sn-tip-close-button{
+    top: 7px;
+}
+
+.sn-tip .sn-tip-icon{
+    margin: 0px 5px;
+    font-size: 14px;
+}
+
+.sn-tip .sn-tip-icon.warning{
+    color: #EFC631;
+}
+
+.sn-tip .sn-tip-icon.error{
+    color: #FF0000;
 }
 
 .sn-v,
