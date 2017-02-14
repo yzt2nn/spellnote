@@ -149,10 +149,20 @@
     white-space: pre-wrap;
 }
 
+.sn-unit-panel{
+    -webkit-user-select:none;
+    -moz-user-select:none;
+    -o-user-select:none;
+    user-select:none;
+}
+
 .sn-unit-panel .sn-unit{
     position: relative;
     display: inline-block;
     height: 30px;
+    width: 30px;
+    line-height: 30px;
+    text-align: center;
     font-size: 14px;
     margin: 5px;
     outline: none;
@@ -338,4 +348,13 @@
 .sn-v,
 .sn-m{
     max-width: 98%;
+}
+
+.sn-i{
+    max-width: 80%;
+}
+
+.sn-l{
+    color: #0000EE;
+    text-decoration: underline;
 }

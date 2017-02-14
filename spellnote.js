@@ -214,7 +214,7 @@ $.extend({
 					offset = lastNode.length;
 				}
 				else {
-					nodeList = this.seekNodes(lastChildNode, null, null, true);
+					var nodeList = this.seekNodes(lastChildNode, null, null, true);
 					nodeList = cleanNodes(nodeList, { tagNames: ['BR'] });
 					if (nodeList.length == 0)
 						lastNode = lastChildNode;
@@ -445,11 +445,16 @@ $.extend({
 
 			var showTip = function ($node, content, type, autoHide, duration) {
 				// 先消除之前的提示
-				var otherTip = $node.find('.sn-tip');
-				if (otherTip.length > 0) {
-					otherTip.find('.sn-tip-close-button').off();
-					otherTip.remove();
+				var $otherTip = $node.find('.sn-tip');
+				if ($otherTip.length > 0) {
+					$otherTip.find('.sn-tip-close-button').off();
+					$otherTip.slideUp(200, function () {
+						$otherTip.remove();
+					});
 				}
+
+				if (!content)
+					return;
 
 				autoHide = autoHide === undefined ? true : autoHide;
 				duration = duration || 5000;
@@ -530,12 +535,12 @@ $.extend({
 			}
 			else {
 				if (unit.iconClass) {
-					$unit = $('<button>').addClass(unit.iconClass);
+					$unit = $('<div>').addClass(unit.iconClass);
 					if (unit.title)
 						$unit.attr('title', unit.title);
 				}
 				else
-					$unit = $('<button>').text(unit.title);
+					$unit = $('<div>').text(unit.title);
 			}
 			$unit.addClass('sn-unit').addClass('sn-unit-name-' + name)
 				.data('event', unit.listenEvent == 'false' ? 'false' : 'true')
@@ -560,10 +565,10 @@ $.extend({
 					$unit.addClass('sn-list-unit');
 					var listHeight = $list.outerHeight();
 					var listWidth = $list.outerWidth();
-					$list.css({
-						width: listWidth,
-						height: listHeight,
-					});
+					// $list.css({
+					// 	width: listWidth,
+					// 	height: listHeight,
+					// });
 					$unit.on('click', function () {
 						//暂存range
 						$.spellnote.funcs.saveRangeToBuffer();
@@ -801,9 +806,13 @@ $.extend({
 			}
 		};
 
+		this.empty = function ($node, args) {
+			$.spellnote.funcs.$getEditor($node).html($.spellnote.constant.emptyPara);
+		};
+
 		this.tip = function ($node, args) {
 			var content = '';
-			if (typeof(args[1]) === 'string') {
+			if (typeof (args[1]) === 'string') {
 				content = args[1];
 				$.spellnote.funcs.showTip($node, content);
 			}
@@ -1022,7 +1031,7 @@ $.extend($.spellnote.units, function () {
 				buttonText: '确认',
 				callback: function ($modal, close) {
 					var url = $modal.find('.sn-music-input').val();
-					var neteaseRegExp = /music.163.com\/#\/song\?id=(\d+)/;
+					var neteaseRegExp = /music.163.com.*song\?id=(\d+)/;
 					var neteaseMatch = url.match(neteaseRegExp);
 
 					var $music;
@@ -1078,12 +1087,25 @@ $.extend($.spellnote.units, function () {
 				callback: function ($modal, close) {
 					var text = $modal.find('.sn-link-text-input').val();
 					var href = $modal.find('.sn-link-href-input').val();
-					if (text == '' && href != '')
-						text = href;
-					else if (href == '') {
+					// 解析链接地址，若没有http://则加上
+					if ((/^https?:(\/{2}|\\)/).test(href)) {
+						if (/^https?:(\/{2}|\\)$/.test(href))
+							href = '';
+					}
+					else if(href != '')
+						href = 'http://' + href;
+					// else{
+					// 	$.spellnote.funcs.showTip($node, '链接地址格式错误！');
+					// }
+
+					if (href == '') {
 						$.spellnote.funcs.showTip($node, '链接地址不能为空！');
 						return;
 					}
+
+					if (text == '' && href != '')
+						text = href;
+
 					var obj = $.spellnote.funcs.getSnObj($node);
 					if (obj.callback.onLinkInsert)
 						obj.callback.onLinkInsert(text, href);
@@ -1135,8 +1157,8 @@ $.extend($.spellnote.units, function () {
 		click: function ($node, e) {
 			$.spellnote.funcs.showModal($node, {
 				title: '关于 Spellnote',
-				contentHtml:  '<p><span style="font-size: 20px;">SPELLNOTE</span> <span style="margin-left: 10px; font-size: 14px;">作者: 月之庭</span></p>'
-				+ '<p>spellnote是一款轻量级富文本编辑器，它的诞生是为了使某些扩展变得更加简单，其针对性较强，所以目前并不开源，仅在作者的网站使用。<p>'
+				contentHtml: '<p><span style="font-size: 20px;">SPELLNOTE <span style="font-size: 12px;">v1.0-beta</span></span> <span style="margin-left: 10px; font-size: 14px;">作者: 月之庭</span></p>'
+				+ '<p>Spellnote是一款轻量级富文本编辑器，它的诞生是为了使某些扩展变得更加简单，其针对性较强，所以目前并不开源，仅在作者的网站使用。<p>'
 				+ '<p>建议使用Chrome或Firefox浏览器以获得最佳体验！</p>'
 				+ '<p>感谢 jQuery 与 Font Awesome 为Spellnote提供的便利！</p>'
 				+ '<p>若有意见、建议或BUG反馈，请发信至 lovenekomusume@163.com，谢谢！</p>',
