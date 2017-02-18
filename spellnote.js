@@ -423,11 +423,11 @@ $.extend({
 						$(this).off();
 						$buttonBar.off();
 						$modal.remove();
-
-						$node.find('.sn-editor-panel').slideDown(100, function () {
-							$(document).scrollTop($.spellnote.docScrollTop);
-							$.spellnote.docScrollTop = undefined;
-						});
+						$.spellnote.enable($node)
+						//$node.find('.sn-editor-panel').slideDown(100, function () {
+						$(document).scrollTop($.spellnote.docScrollTop);
+						$.spellnote.docScrollTop = undefined;
+						//});
 					});
 				});
 				$buttonBar.on('click', function () {
@@ -436,10 +436,11 @@ $.extend({
 				$modal.append($title).append($content).append($buttonBar).append($closeButton);
 				$modal.insertBefore($node.find('.sn-editor-panel'));
 
-				$node.find('.sn-editor-panel').slideUp(50, function () {
-					$modal.slideDown(100);
-					$.spellnote.tools.scrollToTop($node);
-				});
+				//$node.find('.sn-editor-panel').slideUp(50, function () {
+				$.spellnote.disable($node)
+				$modal.slideDown(100);
+				$.spellnote.tools.scrollToTop($node);
+				//});
 
 			};
 
@@ -474,6 +475,7 @@ $.extend({
 				});
 
 				$tip.insertAfter($node.find('.sn-unit-panel'));
+				$.spellnote.tools.scrollToTop($node);
 				$tip.slideDown(200);
 
 				if (autoHide) {
@@ -626,8 +628,6 @@ $.extend({
 			}
 			$node.append($units);
 
-			var snObj = $.spellnote.funcs.getSnObj($node);
-
 			// 绑定按钮列表适时消失事件（滚动或点击空白处）
 			$(document).on('scroll click', function (e) {
 				var $target = $(e.target);
@@ -636,29 +636,6 @@ $.extend({
 					$('.sn-unit-expanding-list.show').slideUp(200);
 					$('.sn-unit-list-active').removeClass('sn-unit-list-active');
 				}
-
-				// 绑定unit panel 到顶悬停事件
-				if (snObj.unitsScrollTimeout) {
-					clearTimeout(snObj.unitsScrollTimeout);
-					snObj.unitsScrollTimeout = undefined;
-				}
-
-				snObj.unitsScrollTimeout = setTimeout(function () {
-					var range = $.spellnote.funcs.createRange();
-					if ($.spellnote.funcs.isRangeBelongTo($node, range)) {
-						// 把当前range所属的编辑器工具栏置顶
-						var nodeOffsetTop = $node.offset().top;
-						var scrollTop = $(document).scrollTop();
-						$units.stop();
-						if (scrollTop > nodeOffsetTop)
-							$units.animate({ 'top': scrollTop - nodeOffsetTop }, 200);
-						else
-							$units.animate({ 'top': 0 }, 200);
-					}
-					else
-						$units.animate({ 'top': 0 }, 200);
-				}, 300);
-
 			});
 		};
 
@@ -784,14 +761,43 @@ $.extend({
 					document.execCommand("insertText", false, bufferText);
 				});
 			}
+
+			if (options['unitsTracing']) {
+				var snObj = $.spellnote.funcs.getSnObj($node);
+				var $units = $.spellnote.funcs.$getUnitPanel($node);
+				$(document).on('scroll click', function (e) {
+					// 绑定unit panel 到顶悬停事件
+					if (snObj.unitsScrollTimeout) {
+						clearTimeout(snObj.unitsScrollTimeout);
+						snObj.unitsScrollTimeout = undefined;
+					}
+
+					snObj.unitsScrollTimeout = setTimeout(function () {
+						var range = $.spellnote.funcs.createRange();
+						if ($.spellnote.funcs.isRangeBelongTo($node, range)) {
+							// 把当前range所属的编辑器工具栏置顶
+							var nodeOffsetTop = $node.offset().top;
+							var scrollTop = $(document).scrollTop();
+							$units.stop();
+							if (scrollTop > nodeOffsetTop)
+								$units.animate({ 'top': scrollTop - nodeOffsetTop }, 200);
+							else
+								$units.animate({ 'top': 0 }, 200);
+						}
+						else
+							$units.animate({ 'top': 0 }, 200);
+					}, 300);
+
+				});
+			}
 		};
 
 		this.enable = function ($node) {
-			this.funcs.getEditor($node).attr('contenteditable', 'true');
+			$.spellnote.funcs.$getEditor($node).attr('contenteditable', 'true');
 		};
 
 		this.disable = function ($node) {
-			this.funcs.getEditor($node).attr('contenteditable', 'false');
+			$.spellnote.funcs.$getEditor($node).attr('contenteditable', 'false');
 		};
 
 		this.html = function ($node, args) {
@@ -1067,8 +1073,9 @@ $.extend($.spellnote.units, function () {
 					var file = $modal.find('.sn-image-input')[0].files[0];
 					var obj = $.spellnote.funcs.getSnObj($node);
 					if (obj.callback.onImageUpload)
-						obj.callback.onImageUpload(file);
-					close();
+						obj.callback.onImageUpload(file, close);
+					else
+						close();
 				},
 			});
 		},
@@ -1092,7 +1099,7 @@ $.extend($.spellnote.units, function () {
 						if (/^https?:(\/{2}|\\)$/.test(href))
 							href = '';
 					}
-					else if(href != '')
+					else if (href != '')
 						href = 'http://' + href;
 					// else{
 					// 	$.spellnote.funcs.showTip($node, '链接地址格式错误！');
