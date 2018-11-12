@@ -537,12 +537,12 @@ $.extend({
 			}
 			else {
 				if (unit.iconClass) {
-					$unit = $('<div>').addClass(unit.iconClass);
+					$unit = $('<button type="button">').addClass(unit.iconClass);
 					if (unit.title)
 						$unit.attr('title', unit.title);
 				}
 				else
-					$unit = $('<div>').text(unit.title);
+					$unit = $('<button type="button">').text(unit.title);
 			}
 			$unit.addClass('sn-unit').addClass('sn-unit-name-' + name)
 				.data('event', unit.listenEvent == 'false' ? 'false' : 'true')
@@ -746,7 +746,7 @@ $.extend({
 			this.registeEventHandler($node);
 			$node.css({
 				position: 'relative',
-				maxWitdh: options['maxWidth'],
+				maxWidth: options['maxWidth'],
 				width: options['width'],
 			});
 			$editor.css({
@@ -1011,8 +1011,8 @@ $.extend($.spellnote.units, function () {
 
 					if (biliMatch) {
 						$video = $('<iframe>')
-							.attr('src', 'http://static.hdslb.com/miniloader.swf?aid=' + biliMatch[1] + '&page=' + (biliMatch[3] == undefined ? '1' : biliMatch[3]))
-							.attr({ 'height': 415, 'width': 544, 'frameborder': 'no' });
+							.attr('src', 'http://player.bilibili.com/player.html?aid=' + biliMatch[1] + '&page=' + (biliMatch[3] == undefined ? '1' : biliMatch[3]))
+							.attr({ 'height': 415, 'width': 544, 'frameborder': 'no', 'scrolling': 'no', 'border': '0', 'framespacing': '0', 'allowfullscreen': "true"});
 					}
 					else
 						$.spellnote.funcs.showTip($node, '链接不正确！');
