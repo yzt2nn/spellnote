@@ -1165,7 +1165,7 @@ $.extend($.spellnote.units, function () {
 			$.spellnote.funcs.showModal($node, {
 				title: '关于 Spellnote',
 				contentHtml: '<p><span style="font-size: 20px;">SPELLNOTE <span style="font-size: 12px;">v1.0-beta</span></span> <span style="margin-left: 10px; font-size: 14px;">作者: 月之庭</span></p>'
-				+ '<p>Spellnote是一款轻量级富文本编辑器，它的诞生是为了使某些扩展变得更加简单，其针对性较强，所以目前并不开源，仅在作者的网站使用。<p>'
+				+ '<p>Spellnote是一款轻量级富文本编辑器，它的诞生是为了使某些扩展变得更加简单。<p>'
 				+ '<p>建议使用Chrome或Firefox浏览器以获得最佳体验！</p>'
 				+ '<p>感谢 jQuery 与 Font Awesome 为Spellnote提供的便利！</p>'
 				+ '<p>若有意见、建议或BUG反馈，请发信至 lovenekomusume@163.com，谢谢！</p>',

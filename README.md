@@ -1,4 +1,4 @@
-#Spellnote
+# Spellnote
 
 Spellnote是一款轻量级富文本编辑器
 
