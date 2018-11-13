@@ -1,3 +1,10 @@
+/*!
+ * Spellnote
+ * version: 1.0.0
+ * author: yzt
+ * Spellnote is built on jQuery.(https://github.com/jquery/jquery)
+ * Icons are from Font Awesome.(https://github.com/FortAwesome/Font-Awesome)
+ */
 $.extend({
 	spellnote: new function () {
 		this.constant = function () {
