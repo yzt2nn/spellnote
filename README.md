@@ -1,11 +1,11 @@
 # Spellnote
 
-SpellnoteÊÇÒ»¿îÇáÁ¿¼¶¸»ÎÄ±¾±à¼­Æ÷
+Spellnoteï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä±ï¿½ï¿½à¼­ï¿½ï¿½
 
-SpellnoteµÄµ®ÉúÊÇÎªÁËÊ¹Ä³Ð©À©Õ¹±äµÃ¸ü¼Ó¼òµ¥¡£½¨ÒéÊ¹ÓÃChrome»òFirefoxä¯ÀÀÆ÷ÒÔ»ñµÃ×î¼ÑÌåÑé£¡¸ÐÐ» jQuery Óë Font Awesome ÎªSpellnoteÌá¹©µÄ±ãÀû£¡
+Spellnoteï¿½Äµï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½Ê¹Ä³Ð©ï¿½ï¿½Õ¹ï¿½ï¿½Ã¸ï¿½ï¿½Ó¼òµ¥¡ï¿½ï¿½ï¿½ï¿½ï¿½Ê¹ï¿½ï¿½Chromeï¿½ï¿½Firefoxï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½é£¡ï¿½ï¿½Ð» jQuery ï¿½ï¿½ Font Awesome ÎªSpellnoteï¿½á¹©ï¿½Ä±ï¿½ï¿½ï¿½ï¿½ï¿½
 
-LICENSE(¿ªÔ´Ð­Òé): MIT LICENSE
+LICENSE(ï¿½ï¿½Ô´Ð­ï¿½ï¿½): MIT LICENSE
 
-Ê¹ÓÃËµÃ÷: http://www.delay-art.com/spellnote/
+Ê¹ï¿½ï¿½Ëµï¿½ï¿½: http://www.nekonekoparty.com/spellnote/
 
-ÈôÐèÁªÏµ×÷Õß£¬Çë·¢ÓÊ¼þÖÁlovenekomusume@163.com, Ð»Ð»£¡
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ïµï¿½ï¿½ï¿½ß£ï¿½ï¿½ë·¢ï¿½Ê¼ï¿½ï¿½ï¿½lovenekomusume@163.com, Ð»Ð»ï¿½ï¿½
