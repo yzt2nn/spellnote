@@ -6,6 +6,6 @@ Spellnote的诞生是为了使某些扩展变得更加简单。建议使用Chrome或Firefox浏览器以获得
 
 LICENSE(开源协议): MIT LICENSE
 
-使用说明: http://www.delay-art.com/spellnote/
+使用说明: http://www.nekonekoparty.com/spellnote/
 
 若需联系作者，请发邮件至lovenekomusume@163.com, 谢谢！
